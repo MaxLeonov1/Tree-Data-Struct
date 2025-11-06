@@ -6,7 +6,7 @@
 
 /*=====================================================================================*/
 
-typedef double TreeElem_t;
+typedef const char* TreeElem_t;
 typedef struct TreeNode TreeNode_t;
 typedef struct Tree Tree_t;
 typedef struct TreeDebugInfo TreeDebugInfo_t;

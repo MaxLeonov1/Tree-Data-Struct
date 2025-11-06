@@ -182,7 +182,7 @@ int PrintGraphNodes(TreeNode_t* node, int rank, FILE* graph_text) {
     fprintf(
         graph_text, 
         "node_%d[shape=Mrecord, rank=%d, "
-        "label=\" { %p | data: %lf | { Left: %p | Right: %p } } \",];\n",
+        "label=\" { %p | data: '%s' | { Left: %p | Right: %p } } \",];\n",
         idx,
         rank,
         node,

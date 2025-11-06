@@ -70,7 +70,7 @@ TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
     while (child != nullptr) {
         parent = child;
 
-        if (elem <= parent->data)
+        if (atoi(elem) <= atoi(parent->data))
             child = parent->left;
         else
             child = parent->right;
@@ -86,7 +86,7 @@ TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
         tree->root = node;
 
     else {
-        if (elem <= parent->data)
+        if (atoi(elem) <= atoi(parent->data))
             parent->left = node;
         else
             parent->right = node;
@@ -102,6 +102,6 @@ TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
 
 TreeErr_t PrintSort ( Tree_t* tree ) {
 
-    
+
 
 }
