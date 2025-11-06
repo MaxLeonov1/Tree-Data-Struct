@@ -10,11 +10,18 @@ int main() {
 
     TreeCtor ( &tree_1 );
 
-    tree_1.node_0.data = 15;
-    TreeNode_t node_1 = { 10, nullptr, nullptr };
-    TreeNode_t node_2 = { 20, nullptr, nullptr };
-    tree_1.node_0.left = &node_1;
-    tree_1.node_0.right = &node_2;
+    InsertNode( &tree_1, 15 );
+    InsertNode( &tree_1, 10 );
+    InsertNode( &tree_1, 20 );
+    InsertNode( &tree_1, 10 );
+    InsertNode( &tree_1, 8 );
+    InsertNode( &tree_1, 25 );
+    InsertNode( &tree_1, 12 );
+    InsertNode( &tree_1, 18 );
+
+    TreeDump( &tree_1, TreeErr_t::TREE_OK );
+
+    TreeDtor(&tree_1);
 
     return 0;
 }
