@@ -19,7 +19,7 @@ int main() {
     InsertNode( &tree_1, 12 );
     InsertNode( &tree_1, 18 );
 
-    TreeDump( &tree_1, TreeErr_t::TREE_OK );
+    TreeDump( &tree_1, TreeErr_t::MEM_ALLOC_ERR );
 
     TreeDtor(&tree_1);
 
