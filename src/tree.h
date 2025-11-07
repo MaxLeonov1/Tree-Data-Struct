@@ -75,15 +75,22 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 /*=====================================================================================*/
 
 #ifndef _DEBUG
-#define TREE_INIT(name) Tree_t name = { nullptr, 0 };
+    #define _IF_DEBUG(source)
+    #define TREE_INIT(name) Tree_t name = { nullptr, 0 };
 #else
-#define TREE_INIT(name) Tree_t name = { {#name, __FUNCTION__, __FILE__, __LINE__}, nullptr, 0 };
+    #define _IF_DEBUG(source) source
+    #define TREE_INIT(name) Tree_t name = { {#name, __FUNCTION__, __FILE__, __LINE__}, nullptr, 0 };
 #endif
 
-#define TREE_STAT_CHECK_(tree_p, status)   \
+#define _OK_STAT_ TreeErr_t status = TreeErr_t::TREE_OK;
+
+#define TREE_STAT_CHECK_DUMP_(tree_p, status)   \
     if ( status != TreeErr_t::TREE_OK ) {  \
         TreeDump(tree_p, status);          \
         return status;                     \
     }
+
+#define TREE_STAT_CHECK_                              \
+    if ( status != TreeErr_t::TREE_OK ) return status; \
 
 /*=====================================================================================*/

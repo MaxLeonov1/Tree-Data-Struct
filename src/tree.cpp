@@ -28,7 +28,7 @@ void TreeDtor ( Tree_t* tree ) {
 
 TreeErr_t AllocNode ( TreeNode_t** node ) {
 
-    assert(node != nullptr);
+    assert(node);
 
     TreeNode_t* node_ptr = (TreeNode_t*)calloc(1, sizeof(node_ptr[0]));
     if ( node_ptr == nullptr ) return TreeErr_t::MEM_ALLOC_ERR;
@@ -61,8 +61,7 @@ TreeErr_t DeleteNode ( TreeNode* node ) {
 TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
 
     assert(tree);
-
-    TreeErr_t status = TreeErr_t::TREE_OK;
+    _OK_STAT_
 
     TreeNode_t* parent = tree->root;
     TreeNode_t* child = tree->root;
@@ -78,7 +77,7 @@ TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
 
     TreeNode_t* node = nullptr;
     status = AllocNode(&node);
-    TREE_STAT_CHECK_ (tree, status)
+    TREE_STAT_CHECK_ (tree, status);
 
     node->data = elem;
 
