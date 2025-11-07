@@ -4,7 +4,7 @@
 
 #include "tree.h"
 
-
+/*=====================================================================================*/
 
 void TreeCtor ( Tree_t* tree ) {
 
@@ -15,7 +15,7 @@ void TreeCtor ( Tree_t* tree ) {
 
 }
 
-
+/*=====================================================================================*/
 
 void TreeDtor ( Tree_t* tree ) {
 
@@ -24,7 +24,7 @@ void TreeDtor ( Tree_t* tree ) {
 
 }
 
-
+/*=====================================================================================*/
 
 TreeErr_t AllocNode ( TreeNode_t** node ) {
 
@@ -39,7 +39,7 @@ TreeErr_t AllocNode ( TreeNode_t** node ) {
 
 }
 
-
+/*=====================================================================================*/
 
 TreeErr_t DeleteNode ( TreeNode* node ) {
 
@@ -56,7 +56,7 @@ TreeErr_t DeleteNode ( TreeNode* node ) {
 
 }
 
-
+/*=====================================================================================*/
 
 TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
 
@@ -98,3 +98,10 @@ TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
 
 }
 
+/*=====================================================================================*/
+
+TreeErr_t PrintSort ( Tree_t* tree ) {
+
+    
+
+}

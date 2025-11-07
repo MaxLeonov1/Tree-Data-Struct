@@ -53,6 +53,10 @@ typedef enum {
 
 /*=====================================================================================*/
 
+void FillTree ( Tree_t* tree );
+void SortTree ( TreeNode_t* node );
+void CheckSortTime ( Tree_t* tree );
+
 void      TreeCtor   ( Tree_t* tree );
 void      TreeDtor   ( Tree_t* tree );
 TreeErr_t AllocNode  ( TreeNode_t** node );

@@ -105,6 +105,11 @@ void PrintLogHeader ( Tree_t* tree, FILE* log_file, TreeErr_t status ) {
             "<h3 style=\"color:red;\">[%s]</h3>\n",
             status, StatusCodeToStr(status)
         );
+    else
+        fprintf(
+            log_file,
+            "<h3 style=\"color:green;\">[NO ERROR DUMP]</h3>\n"
+        );
 
     fprintf( 
         log_file,
@@ -177,7 +182,7 @@ int PrintGraphNodes(TreeNode_t* node, int rank, FILE* graph_text) {
     fprintf(
         graph_text, 
         "node_%d[shape=Mrecord, rank=%d, "
-        "label=\" { %p | data: %lf | { %p | %p } } \",];\n",
+        "label=\" { %p | data: %lf | { Left: %p | Right: %p } } \",];\n",
         idx,
         rank,
         node,
