@@ -1,36 +1,34 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include "akinator.h"
 #include "tree.h"
 
+#pragma GCC diagnostic ignored "-Wformat=2"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
 
+/*=====================================================================================*/
 
-TreeErr_t AddNewSubject ( subject_t* sub ) {
+TreeErr_t AddNewSubject ( TreeNode_t* node, char* name, char* chartic ) {
 
-    assert(sub);
-    assert(sub->node);
+    assert(node);
     _OK_STAT_
 
-    status = AllocNode( &sub->node->left );
-    status = AllocNode( &sub->node->right );
+    status = InsertNode( &node->left, name );
+    TREE_STAT_CHECK_
+    status = InsertNode( &node->right, node->data );
     TREE_STAT_CHECK_
 
-    if ( sub->branch == _yes_ ) {
-        sub->node->left->data = sub->name;
-        sub->node->right->data = sub->node->data;
-        sub->node->data = sub->chartic;
-    } else {
-        sub->node->right->data = sub->name;
-        sub->node->left->data = sub->node->data;
-        sub->node->data = sub->chartic;
-    }
+    free(node->data);
+    node->data = strdup(chartic);
 
-    return TreeErr_t::TREE_OK;
+    _RET_OK_
 
 }
 
-
+/*=====================================================================================*/
 
 TreeErr_t FindSubject ( Tree_t* tree ) {
 
@@ -38,66 +36,55 @@ TreeErr_t FindSubject ( Tree_t* tree ) {
     _OK_STAT_
 
     TreeNode_t* parent = tree->root;
-    TreeNode_t* child = tree->root;
+    int is_cor = _yes_;
 
-    do {
-
-        subject_t sub;
-        sub.node = parent;
-        sub.name = parent->data;
+    while (1) {
     
         if ( parent->left && parent->right ) {
 
+            AskAboutSubject( parent->data, &is_cor );
 
+            if ( is_cor == _yes_ )
+                parent = parent->left;
+            else
+                parent = parent->right;
             
         } else {
 
-            AskIfCorrect ( &sub );
+            char wished[MAX_STR_LEN_] = {0};
+            char chartic[MAX_STR_LEN_] = {0};
+
+            AskIfCorrect (parent, &is_cor, wished, chartic);
+
+            if ( is_cor == _no_ )
+                AddNewSubject (parent, wished, chartic);
+            _RET_OK_
 
         }
+    } 
 
-    } while ( 
-        parent->left != nullptr || 
-        parent->right != nullptr 
-    );
+    _RET_OK_
 
 }
 
+/*=====================================================================================*/
 
+void AskAboutSubject ( char* data, int* is_cor ) {
 
-void AskAboutSubject ( subject_t* sub ) {
-
-
-
-}
-
-
-
-void AskIfCorrect ( subject_t* sub ) {
-
-    assert(sub);
+    assert(data);
+    assert(is_cor);
 
     while(1) {
-        const char* resp = nullptr;
-        printf( "You have thought of %s? [answer yes or no]\n", sub->name );
+        char resp[MAX_STR_LEN_] = {0};
+        printf( "Is your subject %s? [answer yes or no]\n", data );
         scanf( "%s", resp );
 
-        if ( resp[0] == 'y' )
-            printf( "Hah, I knew it!\n" );
+        if ( resp[0] == 'y' ) {
+            *is_cor = _yes_;
             break;
-
+        }
         if ( resp[0] == 'n' ) {
-            printf( 
-                "It's a shame:(\n"
-                "May I know what you wished? [type what you thought of]\n"
-            );
-            scanf( "%s", sub->name );
-            printf(
-                "Can you write how it differs from the one I proposed? [write in form \"It is ...\"]\n"
-            );
-            scanf( "%s", sub->chartic );
-
-            AddNewSubject(sub);
+            *is_cor = _no_;
             break;
         }
 
@@ -106,3 +93,44 @@ void AskIfCorrect ( subject_t* sub ) {
     }
 
 }
+
+/*=====================================================================================*/
+
+void AskIfCorrect ( TreeNode_t* node, int* is_cor, char* wished, char* chartic ) {
+
+    assert(node);
+    assert(wished);
+    assert(chartic);
+
+    while(1) {
+
+        char resp[MAX_STR_LEN_] = {0};
+        printf( "You have thought of %s? [answer yes or no]\n", node->data );
+        scanf( "%s", resp );
+
+        if ( resp[0] == 'y' ) {
+            *is_cor = _yes_;
+            printf( "Hah, I knew it!\n" );
+            break;
+        }
+        if ( resp[0] == 'n' ) {
+            *is_cor = _no_;
+            printf( 
+                "It's a shame:(\n"
+                "May I know what you wished? [type what you thought of]\n"
+            );
+            scanf( " %[^\n]", wished );
+            printf(
+                "Can you write how it differs from the one I proposed? [write in form \"It is ...\"]\n"
+            );
+            scanf( " %[^\n]", chartic );
+            break;
+        }
+
+        printf( "What is it? I asked to type yes or no!\n" );
+
+    }
+
+}
+
+/*=====================================================================================*/

@@ -7,13 +7,19 @@
 
 #include "tree.h"
 
-
+#pragma GCC diagnostic ignored "-Wformat=2"
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
 
 /*=====================================================================================*/
 
 const char* StatusCodeToStr ( TreeErr_t status ) {
 
     switch(status) {
+        case TreeErr_t::INSERT_EX_POS_ERR:
+            return "TRY TO INSERT IN EXISTING TREE NODE";
+        case TreeErr_t::FILE_OPEN_ERR:
+            return "UNABLE TO OPEN FILE";
         case TreeErr_t::MEM_ALLOC_ERR:
             return "ERROR IN ALLOCATION";
         case TreeErr_t::TREE_OK:
@@ -24,7 +30,7 @@ const char* StatusCodeToStr ( TreeErr_t status ) {
 
 /*=====================================================================================*/
 
-void CreateLogDir ( char* dir_name, int call_num ) {
+void CreateLogDir ( char* dir_name ) {
 
     assert(dir_name);
  
@@ -61,7 +67,7 @@ void TreeDump ( Tree_t* tree, TreeErr_t status ) {
     char graphname[MAX_STR_LEN_] = {0};
     static char log_dir[MAX_STR_LEN_] = {0};
 
-    if (call_num == 1) CreateLogDir ( log_dir, call_num );
+    if (call_num == 1) CreateLogDir ( log_dir );
 
     snprintf ( filename, sizeof(filename), "%s/list_log.htm", log_dir );
     snprintf ( graphname, sizeof(graphname), "graph_%d.svg", call_num );

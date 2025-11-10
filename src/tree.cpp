@@ -1,8 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "tree.h"
+
+#pragma GCC diagnostic ignored "-Wformat=2"
 
 /*=====================================================================================*/
 
@@ -31,11 +34,15 @@ TreeErr_t AllocNode ( TreeNode_t** node ) {
     assert(node);
 
     TreeNode_t* node_ptr = (TreeNode_t*)calloc(1, sizeof(node_ptr[0]));
-    if ( node_ptr == nullptr ) return TreeErr_t::MEM_ALLOC_ERR;
+    if ( !node_ptr ) return TreeErr_t::MEM_ALLOC_ERR;
 
-    *node = node_ptr;
+    node_ptr->left = nullptr;
+    node_ptr->right = nullptr;
+    node_ptr->data = nullptr;    
 
-    return TreeErr_t::TREE_OK;
+    *node = node_ptr; 
+
+    _RET_OK_
 
 }
 
@@ -50,57 +57,89 @@ TreeErr_t DeleteNode ( TreeNode* node ) {
     if (node->right != nullptr)
         DeleteNode (node->right);
 
+    free(node->data);
     free(node);
 
-    return TreeErr_t::TREE_OK;
+    _RET_OK_
 
 }
 
 /*=====================================================================================*/
 
-TreeErr_t InsertNode ( Tree_t* tree, TreeElem_t elem ) {
+TreeErr_t InsertNode ( TreeNode_t** node, TreeElem_t elem ) {
 
-    assert(tree);
+    assert(node);
     _OK_STAT_
 
-    TreeNode_t* parent = tree->root;
-    TreeNode_t* child = tree->root;
+    TreeNode_t* node_new = nullptr;
+    status = AllocNode(&node_new);
+    TREE_STAT_CHECK_
+    node_new->data = strdup(elem);
+    *node = node_new;
 
-    while (child != nullptr) {
-        parent = child;
-
-        if (atoi(elem) <= atoi(parent->data))
-            child = parent->left;
-        else
-            child = parent->right;
-    }
-
-    TreeNode_t* node = nullptr;
-    status = AllocNode(&node);
-    TREE_STAT_CHECK_ (tree, status);
-
-    node->data = elem;
-
-    if (parent == nullptr)
-        tree->root = node;
-
-    else {
-        if (atoi(elem) <= atoi(parent->data))
-            parent->left = node;
-        else
-            parent->right = node;
-    }
-
-    tree->cpcty++;
-
-    return TreeErr_t::TREE_OK;
+    _RET_OK_
 
 }
 
 /*=====================================================================================*/
 
-TreeErr_t PrintSort ( Tree_t* tree ) {
+TreeErr_t InsertNodeAfter ( TreeNode_t* node, TreeElem_t elem, int child ) {
 
+    assert(node);
+    _OK_STAT_
 
+    if ( 
+        node->left && child == _left_ ||
+        node->right && child == _right_
+    )
+        return TreeErr_t::INSERT_EX_POS_ERR;
+
+    if ( child == _left_ ) {
+        status = InsertNode( &node->left, elem );
+        TREE_STAT_CHECK_
+    } else {
+        status = InsertNode( &node->right, elem );
+        TREE_STAT_CHECK_
+    }     
+    
+    _RET_OK_
+
+}
+
+/*=====================================================================================*/
+
+TreeErr_t SaveToDisk ( Tree_t* tree, const char* disk_name ) {
+
+    assert(tree);
+
+    if (disk_name == nullptr)
+        disk_name = DEF_DISK_NAME_;
+
+    FILE* disk = fopen( disk_name, "wb" );
+    if (disk == nullptr) return TreeErr_t::FILE_OPEN_ERR;
+
+    WriteToDisk(tree->root, disk);
+
+    fclose(disk);
+
+    _RET_OK_
+
+}
+
+/*=====================================================================================*/
+
+void WriteToDisk ( TreeNode_t* node, FILE* disk ) {
+
+    assert(node);
+    assert(disk);
+
+    fprintf(disk, "(%s", node->data);
+
+    if (node->left)
+        WriteToDisk(node->left, disk);
+    if (node->right)
+        WriteToDisk(node->right, disk);
+        
+    fprintf(disk, ")");
 
 }
