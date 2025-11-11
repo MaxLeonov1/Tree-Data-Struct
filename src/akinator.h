@@ -12,7 +12,8 @@
 //======================================================
 
 void      AskAboutSubject ( char* data, int* is_cor );
-void AskIfCorrect ( TreeNode_t* node, int* is_cor, char* wished, char* chartic );
-TreeErr_t FindSubject     ( Tree_t* tree );
-TreeErr_t AddNewSubject   ( TreeNode_t* node, char* name, char* chartic );
-TreeErr_t FindSubject     ( Tree_t* tree );
+void      AskIfCorrect    ( TreeNode_t* node, int* is_cor, char* wished, char* question );
+TreeErr_t GuessSubject    ( Tree_t* tree );
+void      FindSubject     ( Tree_t* tree );
+TreeErr_t AddNewSubject   ( TreeNode_t* node, char* name, char* question );
+void      CompareSubjects ( TreeNode_t* node, unsigned int sub_hash, TreeNode_t** found_node );

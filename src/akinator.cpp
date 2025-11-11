@@ -4,6 +4,7 @@
 
 #include "akinator.h"
 #include "tree.h"
+#include "sup_func.h"
 
 #pragma GCC diagnostic ignored "-Wformat=2"
 #pragma GCC diagnostic ignored "-Wformat-overflow"
@@ -11,18 +12,19 @@
 
 /*=====================================================================================*/
 
-TreeErr_t AddNewSubject ( TreeNode_t* node, char* name, char* chartic ) {
+TreeErr_t AddNewSubject ( TreeNode_t* node, char* name, char* question ) {
 
     assert(node);
     _OK_STAT_
 
-    status = InsertNode( &node->left, name );
+    status = InsertNode( &node->left, name, node );
     TREE_STAT_CHECK_
-    status = InsertNode( &node->right, node->data );
+    status = InsertNode( &node->right, node->data, node );
     TREE_STAT_CHECK_
 
     free(node->data);
-    node->data = strdup(chartic);
+    node->data = strdup(question);
+    if (!node->data) return TreeErr_t::MEM_ALLOC_ERR;
 
     _RET_OK_
 
@@ -30,7 +32,7 @@ TreeErr_t AddNewSubject ( TreeNode_t* node, char* name, char* chartic ) {
 
 /*=====================================================================================*/
 
-TreeErr_t FindSubject ( Tree_t* tree ) {
+TreeErr_t GuessSubject ( Tree_t* tree ) {
 
     assert(tree);
     _OK_STAT_
@@ -51,8 +53,8 @@ TreeErr_t FindSubject ( Tree_t* tree ) {
             
         } else {
 
-            char wished[MAX_STR_LEN_] = {0};
-            char chartic[MAX_STR_LEN_] = {0};
+            char wished[MAX_STR_LEN_] = "";
+            char chartic[MAX_STR_LEN_] = "";
 
             AskIfCorrect (parent, &is_cor, wished, chartic);
 
@@ -96,11 +98,11 @@ void AskAboutSubject ( char* data, int* is_cor ) {
 
 /*=====================================================================================*/
 
-void AskIfCorrect ( TreeNode_t* node, int* is_cor, char* wished, char* chartic ) {
+void AskIfCorrect ( TreeNode_t* node, int* is_cor, char* wished, char* question ) {
 
     assert(node);
     assert(wished);
-    assert(chartic);
+    assert(question);
 
     while(1) {
 
@@ -121,14 +123,70 @@ void AskIfCorrect ( TreeNode_t* node, int* is_cor, char* wished, char* chartic )
             );
             scanf( " %[^\n]", wished );
             printf(
-                "Can you write how it differs from the one I proposed? [write in form \"It is ...\"]\n"
+                "Can you write how it differs from %s? [write in form \"It is ...\"]\n",
+                node->data
             );
-            scanf( " %[^\n]", chartic );
+            scanf( " %[^\n]", question );
             break;
         }
 
         printf( "What is it? I asked to type yes or no!\n" );
 
+    }
+
+}
+
+/*=====================================================================================*/
+
+void FindSubject ( Tree_t* tree ) {
+
+    assert(tree);
+    char sub[MAX_STR_LEN_] = {0};
+
+    printf("Type searching subject\n");
+    scanf(" %[^\n]", sub);
+
+    unsigned int sub_hash = djb2hash(sub);
+    TreeNode_t* found_node = nullptr;
+    printf("%u\n", sub_hash);
+    
+    CompareSubjects(tree->root, sub_hash, &found_node);
+
+    if ( found_node == nullptr )
+        printf("There is no %s in base\n", sub);
+    else {
+        TreeNode_t* parent = found_node->parent;
+        printf("%s can be defined as:\n", sub);
+
+        while ( parent != nullptr ) {
+
+            printf("%s\n", parent->data);
+            // if (parent->parent->left == parent)
+            //     printf("%s\n", parent->data);
+            // if (parent->parent->right == parent)
+            //     printf("not %s\n", parent->data);
+
+            parent = parent->parent;
+        }
+    }
+
+}
+
+/*=====================================================================================*/
+
+void CompareSubjects ( TreeNode_t* node, unsigned int sub_hash, TreeNode_t** found_node ) {
+
+    assert(node);
+
+    static int is_found = 0;
+
+    if(node->left)
+        CompareSubjects(node->left, sub_hash, found_node);
+    if(node->right)
+        CompareSubjects(node->right, sub_hash, found_node);
+
+    if ( sub_hash == node->data_hash ) {
+        *found_node = node;
     }
 
 }

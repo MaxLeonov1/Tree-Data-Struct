@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "tree.h"
 #include "akinator.h"
+#include "sup_func.h"
 
 
 
@@ -11,13 +13,18 @@ int main() {
 
     TreeCtor(&tree_1);
 
-    InsertNode(&tree_1.root, "animal");
-    InsertNodeAfter(tree_1.root, "hooman", _left_);
-    InsertNodeAfter(tree_1.root, "cat", _right_);
+    InsertNode(&tree_1.root, "animal", tree_1.root);
+    InsertNodeAfter(tree_1.root, "cat", _left_);
+    InsertNodeAfter(tree_1.root, "teaching matan", _right_);
+    InsertNodeAfter(tree_1.root->right, "prof", _right_);
+    InsertNodeAfter(tree_1.root->right, "student", _left_);
 
-    FindSubject(&tree_1);
+    //TreeDump( &tree_1, TreeErr_t::TREE_OK, NULL );
+    
+    // GuessSubject(&tree_1);
+    // FindSubject(&tree_1);
 
-    TreeDump( &tree_1, TreeErr_t::MEM_ALLOC_ERR );
+    //TreeDump( &tree_1, TreeErr_t::TREE_OK, "[%s]", "aboba prime" );
 
     SaveToDisk( &tree_1, NULL );
 

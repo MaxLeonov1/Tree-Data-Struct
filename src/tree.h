@@ -24,9 +24,12 @@ struct TreeDebugInfo {
 
 struct TreeNode {
 
-    TreeElem_t  data;
-    TreeNode_t* left;
-    TreeNode_t* right;
+    TreeElem_t   data;
+    unsigned int data_hash;
+    TreeNode_t*  left;
+    TreeNode_t*  right;
+    TreeNode_t*  parent;
+    int          is_alloc;
 
 };
 
@@ -38,7 +41,8 @@ struct Tree {
 
     TreeNode_t* root;
 
-    size_t cpcty;
+    size_t cpcty; //TODO: make cpcty changing
+    char* buffer; 
 
 };
 
@@ -50,6 +54,8 @@ typedef enum {
     MEM_ALLOC_ERR = 1,
     INSERT_EX_POS_ERR = 2,
     FILE_OPEN_ERR = 3,
+    READ_SYNTAX_ERR = 4,
+    READ_DATA_ERR = 5,
 
 } TreeErr_t;
 
@@ -60,14 +66,17 @@ void      TreeDtor        ( Tree_t* tree );
 TreeErr_t AllocNode       ( TreeNode_t** node );
 void      CreateLogDir    ( char* dir_name );
 TreeErr_t DeleteNode      ( TreeNode* node );
-TreeErr_t InsertNode      ( TreeNode_t** node, TreeElem_t elem );
+TreeErr_t InsertNode      ( TreeNode_t** node, TreeElem_t elem, TreeNode_t* prev_node );
 TreeErr_t InsertNodeAfter ( TreeNode_t* node, TreeElem_t elem, int child );
 
-TreeErr_t SaveToDisk  ( Tree_t* tree, const char* disk_name );
-void      WriteToDisk ( TreeNode_t* node, FILE* disk );
+TreeErr_t   SaveToDisk   ( Tree_t* tree, const char* disk_name );
+void        WriteToDisk  ( TreeNode_t* node, FILE* disk );
+TreeErr_t   ReadFromDisk (Tree_t* tree, const char* filename );
+TreeNode_t* ReadNode     ( char* buffer, size_t* pos, TreeErr_t* status );
+char*       ReadData     (char* ptr, size_t* len);
 
 const char* StatusCodeToStr ( TreeErr_t status );
-void TreeDump       ( Tree_t* tree, TreeErr_t status );
+void TreeDump       ( Tree_t* tree, TreeErr_t status, const char* format, ... );
 void PrintLogHeader ( Tree_t* tree, FILE* log_file, TreeErr_t status );
 int  PrintGraphNodes( TreeNode_t* node, int rank, FILE* graph_text );
 void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir );
@@ -76,6 +85,8 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 
 #define _left_ 0
 #define _right_ 1
+#define _nil_ "nil"
+#define _nil_len_ 3
 
 #define FILE_MODE_ 0755
 #define MAX_STR_LEN_ 500
@@ -104,5 +115,14 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 
 #define TREE_STAT_CHECK_                              \
     if ( status != TreeErr_t::TREE_OK ) return status; \
+
+#define NODE_INIT_(node_ptr)    \
+    node_ptr->left = nullptr;   \
+    node_ptr->right = nullptr;  \
+    node_ptr->data = nullptr;   \
+    node_ptr->parent = nullptr; \
+    node_ptr->data_hash = 0;    \
+    node_ptr->is_alloc = 0;     \
+
 
 /*=====================================================================================*/

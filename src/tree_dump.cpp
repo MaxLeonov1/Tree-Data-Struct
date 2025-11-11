@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include "tree.h"
 
@@ -58,7 +59,7 @@ void CreateLogDir ( char* dir_name ) {
 
 /*=====================================================================================*/
 
-void TreeDump ( Tree_t* tree, TreeErr_t status ) {
+void TreeDump ( Tree_t* tree, TreeErr_t status, const char* format, ... ) {
 
     assert(tree);
 
@@ -81,6 +82,17 @@ void TreeDump ( Tree_t* tree, TreeErr_t status ) {
               "\n<div style=\"height:4px;background:#000\"/>\n" 
               "<pre>\n"
               "<body style=\"background-color: white;\">\n" );
+
+     if (format != NULL) {
+        va_list args;
+        va_start(args, format);
+
+        fprintf(log_file, "<h3>");
+        vfprintf(log_file, format, args);
+        fprintf(log_file, "</h3>");
+        
+        va_end(args);
+    }
 
     PrintLogHeader ( tree, log_file, status );
     
@@ -188,28 +200,46 @@ int PrintGraphNodes(TreeNode_t* node, int rank, FILE* graph_text) {
     fprintf(
         graph_text, 
         "node_%d[shape=Mrecord, rank=%d, "
-        "label=\" { %p | data: '%s' | { Left: %p | Right: %p } } \",];\n",
+        "label=\" { %p | data: [%s] | hash: %u | parent: %p | { Left: %p | Right: %p } } \",];\n",
         idx,
         rank,
         node,
         node->data,
+        node->data_hash,
+        node->parent,
         node->left,
         node->right
     );
 
-    if (node->left)
-        fprintf(
-            graph_text,
-            "node_%d -> node_%d["EDGE_STD_SET_"];\n",
-            idx, idx_left
-        );
+    if (node->left) {
+        // if (node->left->parent == node)
+        //     fprintf(
+        //         graph_text,
+        //         "node_%d -> node_%d[ dir = both, "EDGE_STD_SET_"];\n",
+        //         idx, idx_left
+        //     );
+        // else
+            fprintf(
+                graph_text,
+                "node_%d -> node_%d["EDGE_STD_SET_", label=\"Yes\"];\n",
+                idx, idx_left
+            );
+            
+    }
 
     if (node->right) {
-        fprintf(
-            graph_text,
-            "node_%d -> node_%d["EDGE_STD_SET_"];\n",
-            idx, idx_right
-        );
+        // if (node->right->parent == node)
+        //     fprintf(
+        //         graph_text,
+        //         "node_%d -> node_%d[ dir = both, "EDGE_STD_SET_"];\n",
+        //         idx, idx_right
+        //     );
+        // else
+            fprintf(
+                graph_text,
+                "node_%d -> node_%d["EDGE_STD_SET_", label=\"No\"];\n",
+                idx, idx_right
+            );
         
     }
 

@@ -1,5 +1,5 @@
 #pragma once
 
+#define MAX_STR_LEN_ 1024 
 
-
-int djb2hash ( const char *str );
+unsigned int djb2hash ( const char *str );
