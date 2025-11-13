@@ -1,1 +1,1 @@
-(animal(cat)(teaching matan(student)(prof)))
+("animal"("big"("very wet"("hippo" nil nil)("bear" nil nil))("cat" nil nil))("teaching matan"("student" nil nil)("prof" nil nil)))

@@ -22,8 +22,11 @@ TreeErr_t AddNewSubject ( TreeNode_t* node, char* name, char* question ) {
     status = InsertNode( &node->right, node->data, node );
     TREE_STAT_CHECK_
 
-    free(node->data);
+    if (node->is_alloc == 1)
+        free(node->data);
+    
     node->data = strdup(question);
+    node->is_alloc = 1;
     if (!node->data) return TreeErr_t::MEM_ALLOC_ERR;
 
     _RET_OK_
@@ -148,25 +151,34 @@ void FindSubject ( Tree_t* tree ) {
 
     unsigned int sub_hash = djb2hash(sub);
     TreeNode_t* found_node = nullptr;
-    printf("%u\n", sub_hash);
     
     CompareSubjects(tree->root, sub_hash, &found_node);
 
     if ( found_node == nullptr )
         printf("There is no %s in base\n", sub);
     else {
-        TreeNode_t* parent = found_node->parent;
+        TreeNode_t* node = found_node->parent;
+        TreeNode_t* prev_node = nullptr;
         printf("%s can be defined as:\n", sub);
 
-        while ( parent != nullptr ) {
+        while ( node != nullptr ) {
 
-            printf("%s\n", parent->data);
-            // if (parent->parent->left == parent)
-            //     printf("%s\n", parent->data);
-            // if (parent->parent->right == parent)
-            //     printf("not %s\n", parent->data);
+            if (node->parent == nullptr)
+                if (node->left = prev_node)
+                    printf("%s\n", node->data);
+                else
+                    printf("not %s\n", node->data);
 
-            parent = parent->parent;
+            else
+                if (node->parent->left == node)
+                    printf("%s\n", node->data);
+                else
+                    printf("not %s\n", node->data);
+
+                if (node->left && node->right)
+                    prev_node = node;
+
+            node = node->parent;
         }
     }
 

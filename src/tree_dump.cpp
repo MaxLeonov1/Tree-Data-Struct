@@ -23,6 +23,12 @@ const char* StatusCodeToStr ( TreeErr_t status ) {
             return "UNABLE TO OPEN FILE";
         case TreeErr_t::MEM_ALLOC_ERR:
             return "ERROR IN ALLOCATION";
+        case TreeErr_t::READ_SYNTAX_ERR:
+            return "INCORRECT FILE SYNTAX";
+        case TreeErr_t::READ_DATA_ERR:
+            return "ERROR WHILE READING NODE DATA";
+        case TreeErr_t::EMPTY_TREE_ACT_ERR:
+            return "OPERATION WITH EMPTY TREE";
         case TreeErr_t::TREE_OK:
             return "OK";
     }
@@ -98,12 +104,17 @@ void TreeDump ( Tree_t* tree, TreeErr_t status, const char* format, ... ) {
     
     fprintf ( log_file, "<h3>[IMG]:</h3>\n" );
 
-    CreateGraphImg ( tree, graphname, log_dir );
+    if (tree->root) {
 
-    fprintf ( log_file, "<img "
-                        "src = \"%s\" "
-                        "style=\"width: 80vw; height: auto; max-width: 100%%;\" >",
-                        graphname );
+        CreateGraphImg ( tree, graphname, log_dir );
+        fprintf ( 
+            log_file, 
+            "<img "
+            "src = \"%s\" "
+            "style=\"width: 80vw; height: auto; max-width: 100%%;\" >",
+            graphname 
+        );
+    }
 
     fclose ( log_file );
 
@@ -200,12 +211,13 @@ int PrintGraphNodes(TreeNode_t* node, int rank, FILE* graph_text) {
     fprintf(
         graph_text, 
         "node_%d[shape=Mrecord, rank=%d, "
-        "label=\" { %p | data: [%s] | hash: %u | parent: %p | { Left: %p | Right: %p } } \",];\n",
+        "label=\" { %p | data: [%s] | { hash: %u | is_aloc: %d } | parent: %p | { Left: %p | Right: %p } } \",];\n",
         idx,
         rank,
         node,
         node->data,
         node->data_hash,
+        node->is_alloc,
         node->parent,
         node->left,
         node->right

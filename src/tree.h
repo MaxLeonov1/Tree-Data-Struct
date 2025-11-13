@@ -56,13 +56,14 @@ typedef enum {
     FILE_OPEN_ERR = 3,
     READ_SYNTAX_ERR = 4,
     READ_DATA_ERR = 5,
+    EMPTY_TREE_ACT_ERR = 6,
 
 } TreeErr_t;
 
 /*=====================================================================================*/
 
 void      TreeCtor        ( Tree_t* tree );
-void      TreeDtor        ( Tree_t* tree );
+TreeErr_t TreeDtor        ( Tree_t* tree );
 TreeErr_t AllocNode       ( TreeNode_t** node );
 void      CreateLogDir    ( char* dir_name );
 TreeErr_t DeleteNode      ( TreeNode* node );
@@ -71,9 +72,9 @@ TreeErr_t InsertNodeAfter ( TreeNode_t* node, TreeElem_t elem, int child );
 
 TreeErr_t   SaveToDisk   ( Tree_t* tree, const char* disk_name );
 void        WriteToDisk  ( TreeNode_t* node, FILE* disk );
-TreeErr_t   ReadFromDisk (Tree_t* tree, const char* filename );
-TreeNode_t* ReadNode     ( char* buffer, size_t* pos, TreeErr_t* status );
-char*       ReadData     (char* ptr, size_t* len);
+TreeErr_t   ReadFromDisk ( Tree_t* tree, const char* filename );
+TreeNode_t* ReadNode     ( char* buffer, size_t* pos, TreeErr_t* status, size_t* cpcty );
+char*       ReadData     ( char* ptr, size_t* len );
 
 const char* StatusCodeToStr ( TreeErr_t status );
 void TreeDump       ( Tree_t* tree, TreeErr_t status, const char* format, ... );
@@ -86,10 +87,11 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 #define _left_ 0
 #define _right_ 1
 #define _nil_ "nil"
-#define _nil_len_ 3
+#define _nil_len_ 4
+#define _buff_byte_padding_ 5
 
 #define FILE_MODE_ 0755
-#define MAX_STR_LEN_ 500
+#define MAX_STR_LEN_ 1024
 
 #define EDGE_STD_SET_ "penwidth = 2.0, arrowsize = 0.5, constraint = \"true\""
 #define DEF_DISK_NAME_ "treedisk.bin"
@@ -106,6 +108,7 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 
 #define _OK_STAT_ TreeErr_t status = TreeErr_t::TREE_OK;
 #define _RET_OK_ return TreeErr_t::TREE_OK;
+#define _DUMP_IF_ERR_(tree, status, mes) if(status = TreeErr_t::TREE_OK) TreeDump(&tree, status, mes);
 
 #define TREE_STAT_CHECK_DUMP_(tree_p, status)   \
     if ( status != TreeErr_t::TREE_OK ) {  \
@@ -122,7 +125,8 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
     node_ptr->data = nullptr;   \
     node_ptr->parent = nullptr; \
     node_ptr->data_hash = 0;    \
-    node_ptr->is_alloc = 0;     \
+    node_ptr->is_alloc = 1;     \
 
+#define SKIP_SPACE_ while (buffer[*pos] == ' ') (*pos)++;
 
 /*=====================================================================================*/
