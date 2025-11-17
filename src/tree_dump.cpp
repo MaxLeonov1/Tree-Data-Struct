@@ -41,7 +41,7 @@ void CreateLogDir ( char* dir_name ) {
 
     assert(dir_name);
  
-    char proj_path[MAX_STR_LEN_] = {0};
+    char proj_path[MAX_STR_LEN_] = "";
     time_t log_time_sec = time(NULL);
     struct tm* log_time = localtime( &log_time_sec );
     
@@ -146,12 +146,14 @@ void PrintLogHeader ( Tree_t* tree, FILE* log_file, TreeErr_t status ) {
         "name: %s\n"
         "location: %s::%d, %s()\n"
         "<h3>[TREE DATA]:</h3>\n"
-        "capacity: %lu\n",
+        "capacity: %lu\n"
+        "root[%lu]\n",
         tree->info.name,
         tree->info.file,
         tree->info.line,
         tree->info.func,
-        tree->cpcty 
+        tree->cpcty,
+        tree->root
     );
 
     

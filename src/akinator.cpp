@@ -4,7 +4,9 @@
 
 #include "akinator.h"
 #include "tree.h"
-#include "sup_func.h"
+#include "../utils/colors.h"
+#include "../utils/sup_func.h"
+#include "../stk_lib/stack.h"
 
 #pragma GCC diagnostic ignored "-Wformat=2"
 #pragma GCC diagnostic ignored "-Wformat-overflow"
@@ -61,8 +63,10 @@ TreeErr_t GuessSubject ( Tree_t* tree ) {
 
             AskIfCorrect (parent, &is_cor, wished, chartic);
 
-            if ( is_cor == _no_ )
+            if ( is_cor == _no_ ) {
                 AddNewSubject (parent, wished, chartic);
+                printf("%sI will remember it's for next time:)%s\n", BLUE, RES_COL);
+            }
             _RET_OK_
 
         }
@@ -81,7 +85,7 @@ void AskAboutSubject ( char* data, int* is_cor ) {
 
     while(1) {
         char resp[MAX_STR_LEN_] = {0};
-        printf( "Is your subject %s? [answer yes or no]\n", data );
+        printf( "%sIs your subject %s%s%s? [answer yes or no]\n%s", BLUE, GREEN, data, BLUE, RES_COL);
         scanf( "%s", resp );
 
         if ( resp[0] == 'y' ) {
@@ -93,7 +97,7 @@ void AskAboutSubject ( char* data, int* is_cor ) {
             break;
         }
 
-        printf( "What is it? I asked to type yes or no!\n" );
+        printf( "%sWhat is it? I asked to type yes or no!\n%s", RED, RES_COL );
 
     }
 
@@ -110,97 +114,237 @@ void AskIfCorrect ( TreeNode_t* node, int* is_cor, char* wished, char* question 
     while(1) {
 
         char resp[MAX_STR_LEN_] = {0};
-        printf( "You have thought of %s? [answer yes or no]\n", node->data );
+        printf( 
+            "%sYou have thought of %s%s%s? [answer yes or no]\n%s",
+            BLUE, GREEN, node->data, BLUE, RES_COL );
         scanf( "%s", resp );
 
         if ( resp[0] == 'y' ) {
             *is_cor = _yes_;
-            printf( "Hah, I knew it!\n" );
+            printf( "%sHah, I knew it!\n%s", BLUE, RES_COL );
             break;
         }
         if ( resp[0] == 'n' ) {
             *is_cor = _no_;
             printf( 
-                "It's a shame:(\n"
-                "May I know what you wished? [type what you thought of]\n"
+                "%sIt's a shame:(\n"
+                "May I know what you wished? [type what you thought of]\n%s",
+                BLUE, RES_COL
             );
             scanf( " %[^\n]", wished );
             printf(
-                "Can you write how it differs from %s? [write in form \"It is ...\"]\n",
-                node->data
+                "%sCan you write how it differs from %s%s%s? [write in form \"It is ...\"]%s\n",
+                BLUE, GREEN, node->data, BLUE, RES_COL
             );
             scanf( " %[^\n]", question );
             break;
         }
 
-        printf( "What is it? I asked to type yes or no!\n" );
+        printf( "%sWhat is it? I asked to type yes or no!\n%s", RED, RES_COL );
 
     }
 
 }
 
+/*=====================================================================================*/
 /*=====================================================================================*/
 
 void FindSubject ( Tree_t* tree ) {
 
     assert(tree);
-    char sub[MAX_STR_LEN_] = {0};
 
-    printf("Type searching subject\n");
+    STK_INIT(node_path)
+    StackCtor(&node_path, 4);
+    char sub[MAX_STR_LEN_] = "";
+
+    printf("%sType searching subject\n%s", BLUE, RES_COL);
     scanf(" %[^\n]", sub);
-
-    unsigned int sub_hash = djb2hash(sub);
-    TreeNode_t* found_node = nullptr;
+    u_int sub_hash = djb2hash(sub);
     
-    CompareSubjects(tree->root, sub_hash, &found_node);
+    int is_found = CompareSubjects(tree->root, sub_hash, &node_path);
 
-    if ( found_node == nullptr )
-        printf("There is no %s in base\n", sub);
+    if ( is_found == 0 )
+        printf(
+            "%sThere is no %s%s%s in base\n%s",
+             BLUE, GREEN, sub, BLUE, RES_COL
+            );
     else {
-        TreeNode_t* node = found_node->parent;
-        TreeNode_t* prev_node = nullptr;
-        printf("%s can be defined as:\n", sub);
 
-        while ( node != nullptr ) {
+        STK_ELM_TYPE stk_node = nullptr;
+        STK_ELM_TYPE stk_prev_node = nullptr;
+        StackPop(&node_path, &stk_prev_node);
+        TreeNode_t* prev_node = (TreeNode_t*)stk_prev_node;
 
-            if (node->parent == nullptr)
-                if (node->left = prev_node)
-                    printf("%s\n", node->data);
-                else
-                    printf("not %s\n", node->data);
+        printf("%s%s%s is ",GREEN, sub, BLUE);
 
-            else
-                if (node->parent->left == node)
-                    printf("%s\n", node->data);
-                else
-                    printf("not %s\n", node->data);
+        while (node_path.size > 0) {
 
-                if (node->left && node->right)
-                    prev_node = node;
+            StackPop(&node_path, &stk_node);
+            TreeNode_t* node = (TreeNode_t*)stk_node;
 
-            node = node->parent;
+            if (prev_node->left == node)
+                printf("%s, ", prev_node->data);
+            if (prev_node->right == node)
+                printf("not %s, ", prev_node->data);
+
+            prev_node = node;
+        }
+        printf("%s\n", RES_COL);
+    }
+
+    StackDtor(&node_path);
+}
+
+/*=====================================================================================*/
+
+int CompareSubjects ( TreeNode_t* node, u_int sub_hash, Stack_t* node_path) {
+
+    assert(node);
+    int is_found = 0;
+
+
+    if (sub_hash == djb2hash(node->data)) {
+        StackPush(node_path, node);
+        is_found++;
+    }
+
+    if(node->left) {
+        is_found = CompareSubjects(node->left, sub_hash, node_path);
+        if (is_found) {
+            StackPush(node_path, node);
+            return is_found;
         }
     }
+    if(node->right) {
+        is_found = CompareSubjects(node->right, sub_hash, node_path);
+        if (is_found) {
+            StackPush(node_path, node);
+            return is_found;
+        }
+    }
+
+    return is_found;
+}
+
+/*=====================================================================================*/
+
+void FindDifference ( Tree_t* tree ) {
+
+    assert(tree);
+
+    Subj_t subj_1;
+    Subj_t subj_2;
+    STK_INIT(node_path_1)
+    STK_INIT(node_path_2)
+    subj_1.node_path = &node_path_1;
+    subj_2.node_path = &node_path_2;
+    StackCtor(subj_1.node_path, 4);
+    StackCtor(subj_2.node_path, 4);
+    
+    u_int sub_hash_1 = 0;
+    u_int sub_hash_2 = 0;
+    int is_found = 0;
+
+    is_found = FindPath(tree, &sub_hash_1, subj_1.node_path, "Type first subject");
+    if(!is_found) {
+        StackDtor(subj_1.node_path);
+        StackDtor(subj_2.node_path);
+        return;
+    }
+    is_found = FindPath(tree, &sub_hash_2, subj_2.node_path, "Type second subject");
+    if(!is_found) {
+        StackDtor(subj_1.node_path);
+        StackDtor(subj_2.node_path);
+        return;
+    }
+
+    if (sub_hash_1 == sub_hash_2)
+        printf("%sYou type simmilar objects\n%s", BLUE, RES_COL);
+
+    int is_diff = 0;
+    PrintSimmular( &subj_1, &subj_2, &is_diff );
+
+    if (is_diff) {
+        PrintDifference( &subj_1, "The first differnt in being: " );
+        PrintDifference( &subj_2, "The second differnt in being: " );
+    }
+
+    StackDtor(subj_1.node_path);
+    StackDtor(subj_2.node_path);
+}
+
+/*=====================================================================================*/
+
+void PrintSimmular ( Subj_t* subj_1, Subj_t* subj_2, int* is_diff ) {
+
+    int sim_cnt = 0;
+
+    StackPop(subj_1->node_path, &subj_1->prev_node);
+    StackPop(subj_2->node_path, &subj_2->prev_node);
+
+    printf("%sThey simmular in being: %s", BLUE, RES_COL);
+    while (subj_1->node_path->size>0 || subj_2->node_path->size>0 && !is_diff) {
+
+        StackPop(subj_1->node_path, &subj_1->node);
+        StackPop(subj_2->node_path, &subj_2->node);
+
+        if (subj_1->node != subj_2->node) {
+
+            *is_diff = 1;
+            if (sim_cnt == 0) printf("%snothing%s", RED, RES_COL);
+            break;
+        } else {
+
+            sim_cnt++;
+            if (subj_1->prev_node->left == subj_1->node)
+                printf("%s, ", subj_1->prev_node->data);
+            if (subj_1->prev_node->right == subj_2->node)
+                printf("not %s, ", subj_1->prev_node->data);
+        }
+        subj_1->prev_node = subj_1->node;
+        subj_2->prev_node = subj_2->node;
+    }
+    printf("\n");
 
 }
 
 /*=====================================================================================*/
 
-void CompareSubjects ( TreeNode_t* node, unsigned int sub_hash, TreeNode_t** found_node ) {
+void PrintDifference ( Subj_t* subj, const char* mes ) {
 
-    assert(node);
+    printf("%s%s", BLUE, mes);
+    while (subj->node_path->size>=0) {
 
-    static int is_found = 0;
+        if (subj->prev_node->left == subj->node)
+            printf("%s, ", subj->prev_node->data);
+        if (subj->prev_node->right == subj->node)
+            printf("not %s, ", subj->prev_node->data);
 
-    if(node->left)
-        CompareSubjects(node->left, sub_hash, found_node);
-    if(node->right)
-        CompareSubjects(node->right, sub_hash, found_node);
-
-    if ( sub_hash == node->data_hash ) {
-        *found_node = node;
+        if (subj->node_path->size != 0) {
+            subj->prev_node = subj->node;
+            StackPop(subj->node_path, &subj->node);
+        } else break;
     }
+    printf("%s\n", RES_COL);
 
+}
+
+/*=====================================================================================*/
+
+int FindPath ( Tree_t* tree, u_int* sub_hash, Stack_t* node_path, const char* mes) {
+
+    char sub[MAX_STR_LEN_] = "";
+
+    printf("%s%s\n%s", BLUE, mes, RES_COL);
+    scanf(" %[^\n]", sub);
+    *sub_hash = djb2hash(sub);
+
+    int is_found = CompareSubjects(tree->root, *sub_hash, node_path);
+
+    if ( is_found == 0 )
+        printf("%sThere is no %s%s%s in base\n%s", BLUE, GREEN, sub, BLUE, RES_COL);
+
+    return is_found;
 }
 
 /*=====================================================================================*/

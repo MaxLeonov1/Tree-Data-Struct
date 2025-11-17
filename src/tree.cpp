@@ -4,7 +4,8 @@
 #include <string.h>
 
 #include "tree.h"
-#include "sup_func.h"
+#include "../utils/sup_func.h"
+
 
 #pragma GCC diagnostic ignored "-Wformat=2"
 
@@ -174,10 +175,9 @@ TreeErr_t ReadFromDisk (Tree_t* tree, const char* filename ) {
     if (!file) return TreeErr_t::FILE_OPEN_ERR;
     long long byte_num = FileByteCount(filename);
 
-    tree->buffer = (char*)calloc(byte_num + _buff_byte_padding_, sizeof(tree->buffer[0]));
+    tree->buffer = (char*)calloc((size_t)byte_num + _buff_byte_padding_, sizeof(tree->buffer[0]));
     if (!tree->buffer) return TreeErr_t::MEM_ALLOC_ERR;
-    int r = fread(tree->buffer, sizeof(tree->buffer[0]), byte_num + _buff_byte_padding_, file);
-    printf("read_c: %d\n", r);
+    fread(tree->buffer, sizeof(tree->buffer[0]), (size_t)byte_num + _buff_byte_padding_, file);
 
     size_t pos = 0;
 
@@ -202,6 +202,7 @@ TreeNode_t* ReadNode ( char* buffer, size_t* pos, TreeErr_t* status, size_t* cpc
     if (*status != TreeErr_t::TREE_OK) return nullptr;
 
     if ( buffer[*pos] == '(' ) {
+        SKIP_SPACE_
 
         TreeNode_t* node = nullptr;
         *status = AllocNode(&node);
@@ -212,6 +213,7 @@ TreeNode_t* ReadNode ( char* buffer, size_t* pos, TreeErr_t* status, size_t* cpc
         node->is_alloc = 0;
         size_t len = 0;
 
+        SKIP_SPACE_
         node->data = ReadData(&buffer[*pos], &len);
         if (!node->data) {
             *status = TreeErr_t::READ_DATA_ERR;
@@ -233,13 +235,16 @@ TreeNode_t* ReadNode ( char* buffer, size_t* pos, TreeErr_t* status, size_t* cpc
             node->left->parent = node;
             node->right->parent = node;
         }
+        SKIP_SPACE_
         return node; 
 
-    } else if (buffer[*pos] == 'n', buffer[*pos+1] == 'i', buffer[*pos+2] == 'l') {
+    } else if (strncmp(&buffer[*pos], "nil", 3) == 0) {
 
+        SKIP_SPACE_
         (*pos)+=3;
         SKIP_SPACE_
         *status = TreeErr_t::TREE_OK;
+        SKIP_SPACE_
         return nullptr;
 
     } else {
@@ -256,8 +261,8 @@ TreeNode_t* ReadNode ( char* buffer, size_t* pos, TreeErr_t* status, size_t* cpc
 
 char* ReadData ( char* ptr, size_t* len ) {
 
+    //printf("%s\n", ptr);
     sscanf( ptr, "\"%*[^\"]\"%n", len );
-    //printf("\n\n\n%c\n\n", *(ptr + *len-1));
     *(ptr + *len - 1) = '\0';
     return ptr+1;
 

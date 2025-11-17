@@ -1,5 +1,8 @@
 echo "==============================BEGIN=COMPL=============================================="
-g++ -c src/main.cpp src/tree.cpp src/tree_dump.cpp src/akinator.cpp src/sup_func.cpp\
+g++ -c src/main.cpp src/tree.cpp src/tree_dump.cpp src/akinator.cpp\
+    stk_lib/stack.cpp stk_lib/error_functions.cpp\
+    utils/sup_func.cpp\
+    -I src -I stk_lib -I utils\
     -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
     -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts \
     -Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal \

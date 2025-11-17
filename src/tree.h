@@ -96,13 +96,14 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 #define EDGE_STD_SET_ "penwidth = 2.0, arrowsize = 0.5, constraint = \"true\""
 #define DEF_DISK_NAME_ "treedisk.bin"
 
+#define OLD_NODE_COL_ "fillcolor = \"#fff0b3\", color = \"#ffe680\""
+#define NEW_NODE_COL_ "fillcolor = \"#ccccff\", color = \"#b3b3ff\""
+
 /*=====================================================================================*/
 
 #ifndef _DEBUG
-    #define _IF_DEBUG(source)
     #define TREE_INIT(name) Tree_t name = { nullptr, 0 };
 #else
-    #define _IF_DEBUG(source) source
     #define TREE_INIT(name) Tree_t name = { {#name, __FUNCTION__, __FILE__, __LINE__}, nullptr, 0 };
 #endif
 

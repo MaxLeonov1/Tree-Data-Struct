@@ -3,21 +3,21 @@
 
 #include "sup_func.h"
 
-
+/*=====================================================================================*/
 
 unsigned int djb2hash ( const char* str ) {
 
-    unsigned int hash = 5381;
-    char c = 0;
+    u_int hash = 5381;
+    u_char c = 0;
     
-    while ((c = *str++)) {
+    while ((c = (u_char)*str++)) {
         hash = ((hash << 5) + hash) + c;
     }
     
     return hash;
 }
 
-
+/*=====================================================================================*/
 
 int skip_space ( char* ptr, size_t* pos ) {
 
@@ -34,7 +34,7 @@ int skip_space ( char* ptr, size_t* pos ) {
 
 }
 
-
+/*=====================================================================================*/
 
 long long FileByteCount ( const char* filename ) {
 
