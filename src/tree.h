@@ -101,6 +101,15 @@ void CreateGraphImg ( Tree_t* tree, const char* graphname, const char* graph_dir
 
 /*=====================================================================================*/
 
+#ifdef _WIN32
+    #include <direct.h>
+    #define _MKDIR(name) _mkdir(name)
+    #define PATH_SEP '\\'
+#else
+    #define _MKDIR(name) mkdir(name, FILE_MODE_)
+    #define PATH_SEP '/'
+#endif
+
 #ifndef _DEBUG
     #define TREE_INIT(name) Tree_t name = { nullptr, 0 };
 #else

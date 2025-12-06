@@ -46,20 +46,20 @@ void CreateLogDir ( char* dir_name ) {
     struct tm* log_time = localtime( &log_time_sec );
     
     getcwd(proj_path, sizeof(proj_path));
-    sprintf ( proj_path, "%s/logs", proj_path );
-    mkdir ( proj_path, FILE_MODE_ ); 
+    sprintf ( proj_path, "%s%clogs", proj_path, PATH_SEP );
+    _MKDIR(proj_path);
 
     sprintf ( dir_name,
-              "%s/log_%d.%d.%d_%d:%d:%d",
+              "%s%clog_%d.%d.%d_%d-%d-%d",
               proj_path,
+              PATH_SEP,
               log_time->tm_mday,
               log_time->tm_mon,
               1900 + log_time->tm_year,
               log_time->tm_hour,
               log_time->tm_min,
               log_time->tm_sec );
-    
-    mkdir ( dir_name, FILE_MODE_ );
+    _MKDIR(dir_name);
 
 }
 
@@ -70,13 +70,13 @@ void TreeDump ( Tree_t* tree, TreeErr_t status, const char* format, ... ) {
     assert(tree);
 
     static int call_num = 1;
-    char filename[MAX_STR_LEN_] = {0};
-    char graphname[MAX_STR_LEN_] = {0};
-    static char log_dir[MAX_STR_LEN_] = {0};
+    char filename[MAX_STR_LEN_] = "";
+    char graphname[MAX_STR_LEN_] = "";
+    static char log_dir[MAX_STR_LEN_] = "";
 
     if (call_num == 1) CreateLogDir ( log_dir );
 
-    snprintf ( filename, sizeof(filename), "%s/list_log.htm", log_dir );
+    snprintf ( filename, sizeof(filename), "%s%clist_log.htm", log_dir, PATH_SEP );
     snprintf ( graphname, sizeof(graphname), "graph_%d.svg", call_num );
 
     call_num++;
@@ -147,7 +147,7 @@ void PrintLogHeader ( Tree_t* tree, FILE* log_file, TreeErr_t status ) {
         "location: %s::%d, %s()\n"
         "<h3>[TREE DATA]:</h3>\n"
         "capacity: %lu\n"
-        "root[%lu]\n",
+        "root[%p]\n",
         tree->info.name,
         tree->info.file,
         tree->info.line,
@@ -156,7 +156,6 @@ void PrintLogHeader ( Tree_t* tree, FILE* log_file, TreeErr_t status ) {
         tree->root
     );
 
-    
 }
 
 /*=====================================================================================*/

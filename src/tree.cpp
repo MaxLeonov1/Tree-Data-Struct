@@ -82,7 +82,7 @@ TreeErr_t InsertNode ( TreeNode_t** node, TreeElem_t elem, TreeNode_t* prev_node
     status = AllocNode(&node_new);
     TREE_STAT_CHECK_
 
-    node_new->data = strdup(elem);
+    node_new->data = my_strdup(elem);
     if (!node_new->data) return TreeErr_t::MEM_ALLOC_ERR;
     node_new->data_hash = djb2hash(elem);
     node_new->parent = prev_node;

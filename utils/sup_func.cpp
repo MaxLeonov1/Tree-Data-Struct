@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <ctype.h>
 
 #include "sup_func.h"
 
@@ -10,7 +12,7 @@ unsigned int djb2hash ( const char* str ) {
     u_int hash = 5381;
     u_char c = 0;
     
-    while ((c = (u_char)*str++)) {
+    while ((c = (u_char)tolower(*str++))) {
         hash = ((hash << 5) + hash) + c;
     }
     
@@ -44,4 +46,19 @@ long long FileByteCount ( const char* filename ) {
 
     return file_info.st_size;
 
+}
+
+/*=====================================================================================*/
+
+char* my_strdup(const char* str) {
+    if (str == NULL) return NULL;
+    
+    size_t len = strlen(str) + 1;
+    char* copy = (char*)calloc(len, sizeof(copy[0]));
+    
+    if (copy != NULL) {
+        memcpy(copy, str, len);
+    }
+    
+    return copy;
 }

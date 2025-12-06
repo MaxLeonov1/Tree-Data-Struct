@@ -7,12 +7,9 @@
 #include "../utils/colors.h"
 #include "../utils/sup_func.h"
 
-
-
 void print_cmd_arg_options(bool cls);
 void print_interactive_menu(bool cls);
 int  RunMenu(Tree* tree);
-
 
 void print_cmd_arg_options(bool cls) {
     if(cls) CLS_
@@ -73,7 +70,7 @@ int RunMenu(Tree* tree) {
             }
             case 2: {
                 CLS_
-                FindSubject(tree);
+                CompareSubject(tree);
                 _IF_DEBUG(TreeDump(tree, TreeErr_t::TREE_OK, nullptr);)
                 prt_menu = 1;
                 break;
@@ -106,7 +103,7 @@ int RunMenu(Tree* tree) {
 
 int main(int argc, char* argv[]) {
     
-    const char* input_filename = NULL;
+    const char* input_filename = nullptr;
     const char* output_filename = "treedisk.bin";
 
     for (int i = 1; i < argc; i++) {

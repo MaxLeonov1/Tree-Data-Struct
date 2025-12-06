@@ -4,6 +4,7 @@
 
 #include "tree.h"
 #include "../stk_lib/stack.h"
+#include "../utils/sup_func.h"
 
 /*=====================================================================================*/
 
@@ -25,10 +26,10 @@ typedef struct {
 void      AskAboutSubject ( char* data, int* is_cor );
 void      AskIfCorrect    ( TreeNode_t* node, int* is_cor, char* wished, char* question );
 TreeErr_t GuessSubject    ( Tree_t* tree );
-void      FindSubject     ( Tree_t* tree );
+void      CompareSubject  ( Tree_t* tree );
 void      FindDifference  ( Tree_t* tree );
 TreeErr_t AddNewSubject   ( TreeNode_t* node, char* name, char* question );
-int       CompareSubjects ( TreeNode_t* node, u_int sub_hash, Stack_t* node_path);
+int       FindSubjects    ( TreeNode_t* node, u_int sub_hash, Stack_t* node_path);
 void      PrintDifference ( Subj_t* subj, const char* mes );
 int       FindPath        ( Tree_t* tree, u_int* sub_hash, Stack_t* node_path, const char* mes );
 void      PrintSimmular   ( Subj_t* subj_1, Subj_t* subj_2, int* is_diff );
